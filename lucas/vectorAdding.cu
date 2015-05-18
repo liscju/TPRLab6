@@ -24,7 +24,6 @@ int main(int argc, char** argv) {
 	b = malloc(N*sizeof(int));
 	c = malloc(N*sizeof(int));
 
-	int a[N],b[N],c[N];
 	int *dev_a, *dev_b, *dev_c;
 	cudaMalloc((void**)&dev_a,N * sizeof(int));
 	cudaMalloc((void**)&dev_b,N * sizeof(int));
