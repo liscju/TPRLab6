@@ -18,6 +18,8 @@ int main(void)
 {
 	StopWatchInterface *timer = NULL;
 	float elapsedTime = 0.0f;
+	int threadId = 1024;
+	int block = 256;
 
 	int tableSize = 0;
 	std::cout << "Podaj rozmiar tablicy: ";
@@ -46,7 +48,9 @@ int main(void)
 	cudaMemcpy(dev_a, a , N*sizeof(int),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_b, b , N*sizeof(int),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_c, c , N*sizeof(int),cudaMemcpyHostToDevice);
-	add<<<1,N>>>(dev_a,dev_b,dev_c, N);
+	
+	add<<<block,threadId>>>(dev_a, dev_b, dev_c, N);
+	
 	cudaMemcpy(c,dev_c,N*sizeof(int),cudaMemcpyDeviceToHost);
 	checkCudaErrors(cudaEventRecord(stop, 0));
 	checkCudaErrors(cudaDeviceSynchronize());
