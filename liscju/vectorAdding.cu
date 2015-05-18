@@ -13,17 +13,19 @@ __global__ void add (int *a,int *b, int *c,int N)
 }
 
 void usage(void) {
-	printf("Usage:\n./a.out size\n");
+	printf("Usage:\n./a.out size thread_per_block block_per_grid\n");
 	exit(0);
 }
 
 int main(int argc,char **argv)
 {
-	if (argc < 2) {
+	if (argc != 4) {
 		usage();
 	}
 	int *a,*b,*c;
 	int N = atoi(argv[1]);	
+	int thread_per_block = atoi(argv[2]);
+	int block_per_grid = atoi(argv[3]);
 	a = (int*)malloc(N*sizeof(int));
 	b = (int*)malloc(N*sizeof(int));
 	c = (int*)malloc(N*sizeof(int));
@@ -45,7 +47,7 @@ int main(int argc,char **argv)
 	cudaMemcpy(dev_a, a , N*sizeof(int),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_b, b , N*sizeof(int),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_c, c , N*sizeof(int),cudaMemcpyHostToDevice);
-	add<<<1,N>>>(dev_a,dev_b,dev_c,N);
+	add<<<block_per_grid,thread_per_block>>>(dev_a,dev_b,dev_c,N);
 	cudaMemcpy(c,dev_c,N*sizeof(int),cudaMemcpyDeviceToHost);
 
 	sdkStopTimer(&timer);
