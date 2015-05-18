@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
 	add<<<1,N>>>(dev_a,dev_b,dev_c, N);
 	cudaMemcpy(c,dev_c,N*sizeof(int),cudaMemcpyDeviceToHost);
 	for (int i=0;i<N;i++) {
-		printf("%d+%d=%d\n",a[i],b[i],c[i]);
+		//printf("%d+%d=%d\n",a[i],b[i],c[i]);
 	}
 	cudaFree(dev_a);
 	cudaFree(dev_b);
@@ -54,6 +54,8 @@ int main(int argc, char** argv) {
 	sdkStopTimer(&timer);
 	float time = sdkGetTimerValue(&timer);
 	sdkDeleteTimer(&timer);
+
+	printf("%d %f\n", N, time);
 
 	free(a);
 	free(b);

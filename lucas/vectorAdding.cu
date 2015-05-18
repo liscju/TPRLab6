@@ -43,8 +43,8 @@ int main(int argc, char** argv) {
 	cudaMemcpy(dev_c, c , N*sizeof(int),cudaMemcpyHostToDevice);
 	add<<<1,N>>>(dev_a,dev_b,dev_c, N);
 	cudaMemcpy(c,dev_c,N*sizeof(int),cudaMemcpyDeviceToHost);
-	for (int i=0;i<N;i++) {
-		//printf("%d+%d=%d\n",a[i],b[i],c[i]);
+	for (int i=0;i<N;i=i+1000) {		
+		printf("%d+%d=%d\n",a[i],b[i],c[i]);
 	}
 	cudaFree(dev_a);
 	cudaFree(dev_b);
