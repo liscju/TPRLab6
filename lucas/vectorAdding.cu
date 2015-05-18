@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
 	}
 	int N = atoi(argv[1]);
 	int blockCount = atoi(argv[2]);
-	int threadCount = atoic(argv[3]);
+	int threadCount = atoi(argv[3]);
 	
 	int* a;
 	int* b;
