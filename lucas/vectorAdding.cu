@@ -20,9 +20,9 @@ int main(int argc, char** argv) {
 	int* b;
 	int* c;
 
-	a = malloc(N*sizeof(int));
-	b = malloc(N*sizeof(int));
-	c = malloc(N*sizeof(int));
+	a = (int*)malloc(N*sizeof(int));
+	b = (int*)malloc(N*sizeof(int));
+	c = (int*)malloc(N*sizeof(int));
 
 	int *dev_a, *dev_b, *dev_c;
 	cudaMalloc((void**)&dev_a,N * sizeof(int));

@@ -2,9 +2,9 @@
 #include <cuda.h>
 #include <cstdlib>
 
-__global__ void add (int *a,int *b, int *c) {
+__global__ void add (int *a,int *b, int *c, int size) {
 	int tid = blockIdx.x * blockDim.x + threadIdx.x;
-	if(tid < N) {
+	if(tid < size) {
 		c[tid] = a[tid]+b[tid];
 	}
 }
@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
 	cudaMemcpy(dev_a, a , N*sizeof(int),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_b, b , N*sizeof(int),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_c, c , N*sizeof(int),cudaMemcpyHostToDevice);
-	add<<<1,N>>>(dev_a,dev_b,dev_c);
+	add<<<1,N>>>(dev_a,dev_b,dev_c, N);
 	cudaMemcpy(c,dev_c,N*sizeof(int),cudaMemcpyDeviceToHost);
 	for (int i=0;i<N;i++) {
 		printf("%d+%d=%d\n",a[i],b[i],c[i]);
