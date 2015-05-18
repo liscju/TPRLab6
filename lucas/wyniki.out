@@ -390,3 +390,5 @@ Device 7: "Tesla M2090"
 deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 7.0, CUDA Runtime Version = 5.5, NumDevs = 8, Device0 = Tesla M2090, Device1 = Tesla M2090, Device2 = Tesla M2090, Device3 = Tesla M2090, Device4 = Tesla M2090, Device5 = Tesla M2090, Device6 = Tesla M2090, Device7 = Tesla M2090
 Result = PASS
 
+0+0=0
+10 198.865005
