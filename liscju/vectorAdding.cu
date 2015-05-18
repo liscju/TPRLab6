@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cuda.h>
 #include <cstdlib>
+#include "helper_function.h"
 
 __global__ void add (int *a,int *b, int *c,int N) 
 {
