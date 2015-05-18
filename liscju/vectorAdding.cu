@@ -1,9 +1,8 @@
-#include <stdio>
+#include <cstdio>
 #include <cuda.h>
 #include <cstdlib>
 
-#define N 10
-__global__ void add (int *a,int *b, int *c) 
+__global__ void add (int *a,int *b, int *c,int N) 
 {
 	int tid = blockIdx.x * blockDim.x + threadIdx.x;
 	if(tid < N) 
@@ -12,9 +11,22 @@ __global__ void add (int *a,int *b, int *c)
 	}
 }
 
-int main(void)
+void usage(void) {
+	printf("Usage:\n./a.out size\n");
+	exit(0);
+}
+
+int main(int argc,char **argv)
 {
-	int a[N],b[N],c[N];
+	if (argc < 2) {
+		usage();
+	}
+	int *a,*b,*c;
+	int N = atoi(argv[1]);	
+	a = (int*)malloc(N*sizeof(int));
+	b = (int*)malloc(N*sizeof(int));
+	c = (int*)malloc(N*sizeof(int));
+
 	int *dev_a, *dev_b, *dev_c;
 	cudaMalloc((void**)&dev_a,N * sizeof(int));
 	cudaMalloc((void**)&dev_b,N * sizeof(int));
@@ -27,7 +39,7 @@ int main(void)
 	cudaMemcpy(dev_a, a , N*sizeof(int),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_b, b , N*sizeof(int),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_c, c , N*sizeof(int),cudaMemcpyHostToDevice);
-	add<<<1,N>>>(dev_a,dev_b,dev_c);
+	add<<<1,N>>>(dev_a,dev_b,dev_c,N);
 	cudaMemcpy(c,dev_c,N*sizeof(int),cudaMemcpyDeviceToHost);
 	for (int i=0;i<N;i++) 
 	{
