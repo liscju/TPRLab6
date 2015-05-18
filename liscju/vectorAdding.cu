@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cuda.h>
 #include <cstdlib>
-#include "helper_function.h"
+#include "helper_functions.h"
 
 __global__ void add (int *a,int *b, int *c,int N) 
 {
@@ -28,6 +28,11 @@ int main(int argc,char **argv)
 	b = (int*)malloc(N*sizeof(int));
 	c = (int*)malloc(N*sizeof(int));
 
+	StopWatchInterface *timer = NULL;
+	sdkCreateTimer(&timer);
+	sdkResetTimer(&timer);
+	sdkStartTimer(&timer);
+
 	int *dev_a, *dev_b, *dev_c;
 	cudaMalloc((void**)&dev_a,N * sizeof(int));
 	cudaMalloc((void**)&dev_b,N * sizeof(int));
@@ -42,10 +47,17 @@ int main(int argc,char **argv)
 	cudaMemcpy(dev_c, c , N*sizeof(int),cudaMemcpyHostToDevice);
 	add<<<1,N>>>(dev_a,dev_b,dev_c,N);
 	cudaMemcpy(c,dev_c,N*sizeof(int),cudaMemcpyDeviceToHost);
+
+	sdkStopTimer(&timer);
+	float time = sdkGetTimerValue(&timer);
+	sdkDeleteTimer(&timer);
+
 	for (int i=0;i<N;i++) 
 	{
 		printf("%d+%d=%d\n",a[i],b[i],c[i]);
 	}
+	printf("Time for the kernel: %f ms\n",time);	
+
 	cudaFree(dev_a);
 	cudaFree(dev_b);
 	cudaFree(dev_c);
