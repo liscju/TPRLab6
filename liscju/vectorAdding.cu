@@ -23,12 +23,12 @@ void add_host(int *a,int *b,int *d,int N)
 
 bool is_same(int *c,int *d,int N)
 {
-	bool is_same = true;
+	bool same_tab = true;
 	for (int i=0; i< N; i++ )
 	{
-		is_same &= c[i] == d[i];
+		same_tab &= c[i] == d[i];
 	}
-	return is_same;
+	return same_tab;
 }
 
 void usage(void) {
@@ -95,5 +95,13 @@ int main(int argc,char **argv)
 		printf("%d+%d=%d\n",a[i],b[i],d[i]);
 	}
 
+// Checking if same
+	bool same_host_gpu = is_same(c,d,N);
+	if (same_host_gpu) 
+		printf("Same result for host and kernel");
+	else
+		printf("Different result for host and kernel");	
+
+// Happy end
 	return 0;
 }
