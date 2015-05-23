@@ -50,6 +50,9 @@ int main(int argc,char **argv)
 	c = (int*)malloc(N*sizeof(int));
 	d = (int*)malloc(N*sizeof(int));
 
+	printf("Experiment Data:\n");
+	printf("N=%d\nblock_per_grid=%d\nthread_per_block=%d\n",N,block_per_grid,thread_per_block);
+
 	for (int i=0;i<N;i++) 
 	{
 		a[i] = i;
@@ -76,10 +79,10 @@ int main(int argc,char **argv)
 	sdkDeleteTimer(&timer);
 	
 	printf("----------Result for kernel----------\n");
-	for (int i=0;i<N;i++) 
-	{
-		printf("%d+%d=%d\n",a[i],b[i],c[i]);
-	}
+//	for (int i=0;i<N;i++) 
+//	{
+//		printf("%d+%d=%d\n",a[i],b[i],c[i]);
+//	}
 	printf("Time for the kernel: %f ms\n",time);	
 
 	cudaFree(dev_a);
@@ -88,12 +91,23 @@ int main(int argc,char **argv)
 
 // Host part
 
+	StopWatchInterface *timer_host = NULL;
+	sdkCreateTimer(&timer_host);
+	sdkResetTimer(&timer_host);
+	sdkStartTimer(&timer_host);
+
 	add_host(a,b,d,N);
+
+	sdkStopTimer(&timer_host);
+	float time_host = sdkGetTimerValue(&timer_host);
+	sdkDeleteTimer(&timer_host);
+
 	printf("----------Result for host:-----------\n");
-	for (int i=0;i<N;i++)
-	{
-		printf("%d+%d=%d\n",a[i],b[i],d[i]);
-	}
+//	for (int i=0;i<N;i++)
+//	{
+//		printf("%d+%d=%d\n",a[i],b[i],d[i]);
+//	}
+	printf("Time for the host: %f ms\n",time_host);	
 
 // Checking if same
 	bool same_host_gpu = is_same(c,d,N);
