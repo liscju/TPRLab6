@@ -12,6 +12,15 @@ __global__ void add (int *a,int *b, int *c,int N)
 	}
 }
 
+void add_host(int *a,int *b,int *d,int N)
+{
+	int i;
+	for (i = 0; i < N ; i ++ ) 
+	{
+		d[i] = a[i] + b[i];	
+	}	
+}
+
 void usage(void) {
 	printf("Usage:\n./a.out size thread_per_block block_per_grid\n");
 	exit(0);
@@ -22,13 +31,20 @@ int main(int argc,char **argv)
 	if (argc != 4) {
 		usage();
 	}
-	int *a,*b,*c;
+	int *a,*b,*c,*d;
 	int N = atoi(argv[1]);	
 	int thread_per_block = atoi(argv[2]);
 	int block_per_grid = atoi(argv[3]);
 	a = (int*)malloc(N*sizeof(int));
 	b = (int*)malloc(N*sizeof(int));
 	c = (int*)malloc(N*sizeof(int));
+	d = (int*)malloc(N*sizeof(int));
+
+	for (int i=0;i<N;i++) 
+	{
+		a[i] = i;
+		b[i] = i*1;
+	}
 
 	StopWatchInterface *timer = NULL;
 	sdkCreateTimer(&timer);
@@ -39,11 +55,6 @@ int main(int argc,char **argv)
 	cudaMalloc((void**)&dev_a,N * sizeof(int));
 	cudaMalloc((void**)&dev_b,N * sizeof(int));
 	cudaMalloc((void**)&dev_c,N * sizeof(int));
-	for (int i=0;i<N;i++) 
-	{
-		a[i] = i;
-		b[i] = i*1;
-	}
 	cudaMemcpy(dev_a, a , N*sizeof(int),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_b, b , N*sizeof(int),cudaMemcpyHostToDevice);
 	cudaMemcpy(dev_c, c , N*sizeof(int),cudaMemcpyHostToDevice);
@@ -53,7 +64,8 @@ int main(int argc,char **argv)
 	sdkStopTimer(&timer);
 	float time = sdkGetTimerValue(&timer);
 	sdkDeleteTimer(&timer);
-
+	
+	printf("----------Result for kernel----------");
 	for (int i=0;i<N;i++) 
 	{
 		printf("%d+%d=%d\n",a[i],b[i],c[i]);
@@ -63,5 +75,15 @@ int main(int argc,char **argv)
 	cudaFree(dev_a);
 	cudaFree(dev_b);
 	cudaFree(dev_c);
+
+// Host part
+
+	add_host(a,b,d,N);
+	printf("----------Result for host:-----------");
+	for (int i=0;i<N;i++)
+	{
+		printf("%d+%d=%d\n",a[i],b[i],d[i]);
+	}
+
 	return 0;
 }
