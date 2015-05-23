@@ -75,7 +75,7 @@ int main(int argc,char **argv)
 	float time = sdkGetTimerValue(&timer);
 	sdkDeleteTimer(&timer);
 	
-	printf("----------Result for kernel----------");
+	printf("----------Result for kernel----------\n");
 	for (int i=0;i<N;i++) 
 	{
 		printf("%d+%d=%d\n",a[i],b[i],c[i]);
@@ -89,7 +89,7 @@ int main(int argc,char **argv)
 // Host part
 
 	add_host(a,b,d,N);
-	printf("----------Result for host:-----------");
+	printf("----------Result for host:-----------\n");
 	for (int i=0;i<N;i++)
 	{
 		printf("%d+%d=%d\n",a[i],b[i],d[i]);
@@ -98,9 +98,9 @@ int main(int argc,char **argv)
 // Checking if same
 	bool same_host_gpu = is_same(c,d,N);
 	if (same_host_gpu) 
-		printf("Same result for host and kernel");
+		printf("Same result for host and kernel\n");
 	else
-		printf("Different result for host and kernel");	
+		printf("Different result for host and kernel\n");	
 
 // Happy end
 	return 0;
