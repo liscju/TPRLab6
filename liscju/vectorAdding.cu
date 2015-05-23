@@ -21,6 +21,16 @@ void add_host(int *a,int *b,int *d,int N)
 	}	
 }
 
+bool is_same(int *c,int *d,int N)
+{
+	bool is_same = true;
+	for (int i=0; i< N; i++ )
+	{
+		is_same &= c[i] == d[i];
+	}
+	return is_same;
+}
+
 void usage(void) {
 	printf("Usage:\n./a.out size thread_per_block block_per_grid\n");
 	exit(0);
