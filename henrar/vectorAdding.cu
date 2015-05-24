@@ -34,9 +34,6 @@ int main(int argc, char** argv)
 	
 	std::ofstream resultsFile;
 	resultsFile.open("results.txt");
-	char * tempTableSize = argv[1];
-	unsigned int tableSize = *tempTableSize - '0'; //that shit is dirty
-
 
 	int N = 0;
 	int * a;
@@ -70,7 +67,7 @@ int main(int argc, char** argv)
 					b[j] = j * 1;
 				}
 
-				checkCudaErrors(cudaEventRecord(start, 0));
+		
 				cudaMemcpy(dev_a, a, N*sizeof(int), cudaMemcpyHostToDevice);
 				cudaMemcpy(dev_b, b, N*sizeof(int), cudaMemcpyHostToDevice);
 				cudaMemcpy(dev_c, c, N*sizeof(int), cudaMemcpyHostToDevice);
@@ -78,6 +75,7 @@ int main(int argc, char** argv)
 				sdkCreateTimer(&timer);
 				checkCudaErrors(cudaEventCreate(&start));
 				checkCudaErrors(cudaEventCreate(&stop));
+				checkCudaErrors(cudaEventRecord(start, 0));
 
 				add << <block, threadId >> >(dev_a, dev_b, dev_c, N);
 
