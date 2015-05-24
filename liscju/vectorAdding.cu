@@ -112,10 +112,10 @@ int main(int argc,char **argv)
 // Checking if same
 	bool same_host_gpu = is_same(c,d,N);
 	if (same_host_gpu){ 
-		printf("GPU Size:%d Thread_Per_Block:%d Block_Per_Grid:%d Time:%f ms\n",N,thread_per_block,block_per_grid,time);	
-		printf("CPU Size:%d Thread_Per_Block:%d Block_Per_Grid:%d Time:%f ms\n",N,thread_per_block,block_per_grid,time_host);	
+		printf("%d %f\n",N,time);	
+		printf("%d %f\n",N,time_host);	
 	}else
-		printf("SIZE:%d Thread_Per_Block:%d Block_Per_Grid:%d Different result for host and kernel\n",N,thread_per_block,block_per_grid);	
+		printf("SIZE:%d ERROR\n",N);	
 
 	free(a);free(b);free(c);free(d);
 // Happy end
