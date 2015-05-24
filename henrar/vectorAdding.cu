@@ -27,68 +27,77 @@ int main(int argc, char** argv)
 	const int dimension = 6;
 	const int threads[dimension] = { 32, 64, 128, 256, 512, 1024 };
 	const int blocks[dimension] = { 128, 256, 512, 1024, 2048, 4096 };
-
-	if (argc != 2) {
-		fprintf(stderr, "Wrong arguments. \n", argv[0]);
-		std::cin.get();
-		std::cin.ignore();
-		return EXIT_FAILURE;
-	}
+	const int sizes[dimension] = { 10000, 100000, 1000000, 10000000, 100000000, 1000000000 };
 
 	StopWatchInterface *timer = NULL;
 	float elapsedTime = 0.0f;
 	
-
+	std::ofstream resultsFile;
+	resultsFile.open("results.txt");
 	char * tempTableSize = argv[1];
 	unsigned int tableSize = *tempTableSize - '0'; //that shit is dirty
 
 
-	int N = tableSize;
-	int * a = new int[N];
-	int * b = new int[N];
-	int * c = new int[N];
+	int N = 0;
+	int * a;
+	int * b;
+	int * c;
 
 	int threadId = 0;
 	int block = 0;
 	int *dev_a, *dev_b, *dev_c;
 	cudaEvent_t start, stop;
-	for (int i = 0; i < dimension; i++)
+
+	for (int sizeLoop = 0; sizeLoop < dimension; sizeLoop++)
 	{
-		threadId = threads[i];
-		block = blocks[i];
-
-		cudaMalloc((void**)&dev_a, N * sizeof(int));
-		cudaMalloc((void**)&dev_b, N * sizeof(int));
-		cudaMalloc((void**)&dev_c, N * sizeof(int));
-		for (int j = 0; j < N; j++)
+		N = sizes[sizeLoop];
+		a = new int[N];
+		b = new int[N];
+		c = new int[N];
+		for (int i = 0; i < dimension; i++)
 		{
-			a[j] = j;
-			b[j] = j * 1;
+			threadId = threads[i];
+			for (int x = 0; x < dimension; x++)
+			{
+				block = blocks[x];
+
+				cudaMalloc((void**)&dev_a, N * sizeof(int));
+				cudaMalloc((void**)&dev_b, N * sizeof(int));
+				cudaMalloc((void**)&dev_c, N * sizeof(int));
+				for (int j = 0; j < N; j++)
+				{
+					a[j] = j;
+					b[j] = j * 1;
+				}
+
+				sdkCreateTimer(&timer);
+				checkCudaErrors(cudaEventCreate(&start));
+				checkCudaErrors(cudaEventCreate(&stop));
+
+				checkCudaErrors(cudaEventRecord(start, 0));
+				cudaMemcpy(dev_a, a, N*sizeof(int), cudaMemcpyHostToDevice);
+				cudaMemcpy(dev_b, b, N*sizeof(int), cudaMemcpyHostToDevice);
+				cudaMemcpy(dev_c, c, N*sizeof(int), cudaMemcpyHostToDevice);
+
+				add << <block, threadId >> >(dev_a, dev_b, dev_c, N);
+
+				cudaMemcpy(c, dev_c, N*sizeof(int), cudaMemcpyDeviceToHost);
+				checkCudaErrors(cudaEventRecord(stop, 0));
+				checkCudaErrors(cudaDeviceSynchronize());
+				sdkStopTimer(&timer);
+				checkCudaErrors(cudaEventElapsedTime(&elapsedTime, start, stop));
+
+				resultsFile << N << " " << elapsedTime << " " << block * threadId << std::endl;
+				cudaFree(dev_a);
+				cudaFree(dev_b);
+				cudaFree(dev_c);
+			}
 		}
-
-		sdkCreateTimer(&timer);
-		checkCudaErrors(cudaEventCreate(&start));
-		checkCudaErrors(cudaEventCreate(&stop));
-
-		checkCudaErrors(cudaEventRecord(start, 0));
-		cudaMemcpy(dev_a, a, N*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(dev_b, b, N*sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(dev_c, c, N*sizeof(int), cudaMemcpyHostToDevice);
-
-		add << <block, threadId >> >(dev_a, dev_b, dev_c, N);
-
-		cudaMemcpy(c, dev_c, N*sizeof(int), cudaMemcpyDeviceToHost);
-		checkCudaErrors(cudaEventRecord(stop, 0));
-		checkCudaErrors(cudaDeviceSynchronize());
-		sdkStopTimer(&timer);
-		checkCudaErrors(cudaEventElapsedTime(&elapsedTime, start, stop));
-
-		std::cout << "Program finished in time: " << elapsedTime << std::endl;
-		cudaFree(dev_a);
-		cudaFree(dev_b);
-		cudaFree(dev_c);
+		delete[] a;
+		delete[] b;
+		delete[] c;
 	}
-
+	resultsFile.close();
 	std::cin.get();
 	std::cin.ignore();
 	return 0;
