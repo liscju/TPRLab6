@@ -70,22 +70,23 @@ int main(int argc, char** argv)
 					b[j] = j * 1;
 				}
 
-				sdkCreateTimer(&timer);
-				checkCudaErrors(cudaEventCreate(&start));
-				checkCudaErrors(cudaEventCreate(&stop));
-
 				checkCudaErrors(cudaEventRecord(start, 0));
 				cudaMemcpy(dev_a, a, N*sizeof(int), cudaMemcpyHostToDevice);
 				cudaMemcpy(dev_b, b, N*sizeof(int), cudaMemcpyHostToDevice);
 				cudaMemcpy(dev_c, c, N*sizeof(int), cudaMemcpyHostToDevice);
+				
+				sdkCreateTimer(&timer);
+				checkCudaErrors(cudaEventCreate(&start));
+				checkCudaErrors(cudaEventCreate(&stop));
 
 				add << <block, threadId >> >(dev_a, dev_b, dev_c, N);
 
-				cudaMemcpy(c, dev_c, N*sizeof(int), cudaMemcpyDeviceToHost);
 				checkCudaErrors(cudaEventRecord(stop, 0));
 				checkCudaErrors(cudaDeviceSynchronize());
 				sdkStopTimer(&timer);
 				checkCudaErrors(cudaEventElapsedTime(&elapsedTime, start, stop));
+				
+				cudaMemcpy(c, dev_c, N*sizeof(int), cudaMemcpyDeviceToHost);
 
 				resultsFile << N << " " << elapsedTime << " " << block * threadId << std::endl;
 				cudaFree(dev_a);
