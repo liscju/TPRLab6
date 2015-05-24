@@ -6,7 +6,18 @@
 #define MY_CPU 0
 #define MY_GPU 1
 
-void init(int *a,int *b, int size) {
+// GLOBALS
+int type;
+int vectorSize;
+int blockCount;
+int threadCount;
+	
+int* a;
+int* b;
+int* c;
+// END GLOBALS
+
+void init(int *a, int *b, int size) {
 	int i;
 	for (i=0; i<size; i++) {
 		a[i] = i;
@@ -28,15 +39,64 @@ void addCPU(int *a,int *b, int *c, int size) {
 	}
 }
 
+void countCPU() {
+	printf("###CPU:\n");
+	StopWatchInterface* timer = NULL;
+	sdkCreateTimer(&timer);
+	sdkResetTimer(&timer);
+	sdkStartTimer(&timer);
+	
+	addCPU(a, b, c, vectorSize);
+	
+	sdkStopTimer(&timer);
+	float time = sdkGetTimerValue(&timer);
+	sdkDeleteTimer(&timer);
+	
+	printf("%d+%d=%d\n", a[vectorSize-1], b[vectorSize-1], c[vectorSize-1]);
+	printf("%d %f\n", vectorSize, time);
+}
+
+void countGPU() {
+	printf("###GPU:\n");
+	int *dev_a, *dev_b, *dev_c;
+	cudaMalloc((void**)&dev_a, vectorSize * sizeof(int));
+	cudaMalloc((void**)&dev_b, vectorSize * sizeof(int));
+	cudaMalloc((void**)&dev_c, vectorSize * sizeof(int));
+	
+	cudaMemcpy(dev_a, a, vectorSize * sizeof(int), cudaMemcpyHostToDevice);
+	cudaMemcpy(dev_b, b, vectorSize * sizeof(int), cudaMemcpyHostToDevice);
+	cudaMemcpy(dev_c, c, vectorSize * sizeof(int), cudaMemcpyHostToDevice);
+	
+	StopWatchInterface* timer = NULL;
+	sdkCreateTimer(&timer);
+	sdkResetTimer(&timer);
+	sdkStartTimer(&timer);
+
+	add<<<blockCount,threadCount>>>(dev_a, dev_b, dev_c, vectorSize);
+	cudaThreadSynchronize();
+	
+	sdkStopTimer(&timer);
+	float time = sdkGetTimerValue(&timer);
+	sdkDeleteTimer(&timer);
+
+	cudaMemcpy(c, dev_c, vectorSize * sizeof(int), cudaMemcpyDeviceToHost);
+	
+	cudaFree(dev_a);
+	cudaFree(dev_b);
+	cudaFree(dev_c);
+	
+	printf("%d+%d=%d\n", a[vectorSize-1], b[vectorSize-1], c[vectorSize-1]);
+	printf("%d %f\n", vectorSize, time);
+}
+
 int main(int argc, char** argv) {
-	if(argc != 5) {
-		fprintf(stderr, "Wrong arguments. Usage: %s <type> <vector-size> <block-count> <thread-count>\n", argv[0]);
+	if(argc != 4) {
+		fprintf(stderr, "Wrong arguments. Usage: %s <vector-size> <block-count> <thread-count>\n", argv[0]);
 		return EXIT_FAILURE;
 	}
-	int type = atoi(argv[1]);
-	int vectorSize = atoi(argv[2]);
-	int blockCount = atoi(argv[3]);
-	int threadCount = atoi(argv[4]);
+	int vectorSize = atoi(argv[1]);
+	int blockCount = atoi(argv[2]);
+	int threadCount = atoi(argv[3]);
 	
 	int* a;
 	int* b;
@@ -46,42 +106,10 @@ int main(int argc, char** argv) {
 	b = (int*)malloc(vectorSize * sizeof(int));
 	c = (int*)malloc(vectorSize * sizeof(int));
 
-	StopWatchInterface* timer = NULL;
-	sdkCreateTimer(&timer);
-	sdkResetTimer(&timer);
-	sdkStartTimer(&timer);
-
-	int *dev_a, *dev_b, *dev_c;
-	cudaMalloc((void**)&dev_a, vectorSize * sizeof(int));
-	cudaMalloc((void**)&dev_b, vectorSize * sizeof(int));
-	cudaMalloc((void**)&dev_c, vectorSize * sizeof(int));
-
 	init(a, b, vectorSize);
-
-	if(type == MY_GPU) {
-		cudaMemcpy(dev_a, a, vectorSize * sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(dev_b, b, vectorSize * sizeof(int), cudaMemcpyHostToDevice);
-		cudaMemcpy(dev_c, c, vectorSize * sizeof(int), cudaMemcpyHostToDevice);
-
-		add<<<blockCount,threadCount>>>(dev_a, dev_b, dev_c, vectorSize);
-
-		cudaMemcpy(c, dev_c, vectorSize * sizeof(int), cudaMemcpyDeviceToHost);
-	} else {
-		addCPU(a, b, c, vectorSize);
-	}
-
-	printf("%d+%d=%d\n", a[vectorSize-1], b[vectorSize-1], c[vectorSize-1]);
-
-	cudaFree(dev_a);
-	cudaFree(dev_b);
-	cudaFree(dev_c);
-
-	cudaThreadSynchronize();
-	sdkStopTimer(&timer);
-	float time = sdkGetTimerValue(&timer);
-	sdkDeleteTimer(&timer);
-
-	printf("%d %f\n", vectorSize, time);
+	
+	countGPU();
+	countCPU();
 
 	free(a);
 	free(b);
@@ -89,4 +117,5 @@ int main(int argc, char** argv) {
 
 	return EXIT_SUCCESS;
 }
+
 
