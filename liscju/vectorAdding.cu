@@ -112,8 +112,8 @@ int main(int argc,char **argv)
 // Checking if same
 	bool same_host_gpu = is_same(c,d,N);
 	if (same_host_gpu){ 
-		printf("%d %f\n",N,time);	
-		printf("%d %f\n",N,time_host);	
+		printf("GPU: %d %f\n",N,time);	
+		printf("CPU: %d %f\n",N,time_host);	
 	}else
 		printf("SIZE:%d ERROR\n",N);	
 
