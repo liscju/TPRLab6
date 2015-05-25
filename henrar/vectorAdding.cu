@@ -14,17 +14,15 @@ __global__ void add (int *a,int *b, int *c, const int N)
 	}
 }
 
-int main(void)
+int main(int argc, char** argv)
 {
 	StopWatchInterface *timer = NULL;
 	float elapsedTime = 0.0f;
 	int threadId = 1024;
 	int block = 256;
 
-	int tableSize = 0;
-	std::cout << "Podaj rozmiar tablicy: ";
-	std::cin >> tableSize;
-	std::cout << std::endl;	
+	char * tempTableSize = argv[1];
+	unsigned int tableSize = *tempTableSize - '0'; //that shit is dirty
 	
 	int N = tableSize;
 
@@ -63,6 +61,6 @@ int main(void)
 	cudaFree(dev_a);
 	cudaFree(dev_b);
 	cudaFree(dev_c);
-	std::cout << "Elapsed time: " << elapsedTime << std::endl;
+
 	return 0;
 }
