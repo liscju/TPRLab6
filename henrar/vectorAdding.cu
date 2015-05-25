@@ -16,7 +16,7 @@ void doStuffOnCPU() //does stuff on CPU
 
 __global__ void add (int *a,int *b, int *c, const int N) 
 {
-	int tid = blockIdx.x * blockDim.x + threadIdx.x;
+	long long int tid = blockIdx.x * blockDim.x + threadIdx.x;
 	if(tid < N) 
 	{
 		c[tid] = a[tid]+b[tid];
@@ -36,7 +36,7 @@ int main(int argc, char** argv)
 	
 	
 	int threadId = 1024;
-	int block = 256;
+	int block = 65535;
 
 	char * tempTableSize = argv[1];
 	unsigned int tableSize = *tempTableSize - '0'; //that shit is dirty
@@ -74,13 +74,21 @@ int main(int argc, char** argv)
 	checkCudaErrors(cudaDeviceSynchronize());
 	sdkStopTimer(&timer);
 	checkCudaErrors(cudaEventElapsedTime(&elapsedTime, start, stop));
-	for (int i=0;i<N;i++) 
+
+
+	//print stuff in format:
+	//"%d %f", size, time
+	/*for (int i=0;i<N;i++) 
 	{
 		printf("%d+%d=%d\n",a[i],b[i],c[i]);
-	}
+	}*/
+
+	std::cout << "Program finished in time: " << elapsedTime << std::endl;
 	cudaFree(dev_a);
 	cudaFree(dev_b);
 	cudaFree(dev_c);
 
+	std::cin.get();
+	std::cin.ignore();
 	return 0;
 }
