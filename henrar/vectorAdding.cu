@@ -16,6 +16,12 @@ __global__ void add (int *a,int *b, int *c, const int N)
 
 int main(int argc, char** argv)
 {
+	if (argc != 2) {
+		fprintf(stderr, "Wrong arguments. Usage: %s <vector-size> <block-count> <thread-count>\n", argv[0]);
+		std::cin.get();
+		std::cin.ignore();
+		return EXIT_FAILURE;
+	}
 	StopWatchInterface *timer = NULL;
 	float elapsedTime = 0.0f;
 	int threadId = 1024;
@@ -26,7 +32,10 @@ int main(int argc, char** argv)
 	
 	int N = tableSize;
 
-	int a[N],b[N],c[N];
+	int * a = new int[N];
+	int * b = new int[N];
+	int * c = new int[N];
+
 	int *dev_a, *dev_b, *dev_c;
 	cudaMalloc((void**)&dev_a,N * sizeof(int));
 	cudaMalloc((void**)&dev_b,N * sizeof(int));
