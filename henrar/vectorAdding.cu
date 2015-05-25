@@ -29,17 +29,11 @@ int main(int argc, char** argv)
 	const int blocks[dimension] = { 128, 256, 512, 1024, 2048, 4096 };
 	const int sizes[dimension] = { 10000, 100000, 1000000, 10000000, 100000000, 1000000000 };
 
-	if (argc != 2) {
-		fprintf(stderr, "Wrong arguments. \n", argv[0]);
-		std::cin.get();
-		std::cin.ignore();
-		return EXIT_FAILURE;
-	}
-
 	StopWatchInterface *timer = NULL;
 	float elapsedTime = 0.0f;
 	
-
+	std::ofstream resultsFile;
+	resultsFile.open("results.txt");
 	char * tempTableSize = argv[1];
 	unsigned int tableSize = *tempTableSize - '0'; //that shit is dirty
 
@@ -92,7 +86,7 @@ int main(int argc, char** argv)
 				sdkStopTimer(&timer);
 				checkCudaErrors(cudaEventElapsedTime(&elapsedTime, start, stop));
 
-				std::cout << "Program finished in time: " << elapsedTime << " for blocks: " << block << " threads: " << threadId << " problem size: " << sizes[sizeLoop] << std::endl;
+				resultsFile << "Time: " << elapsedTime << "\tBlocks: " << block << "\tThreads: " << threadId << "\tProblem size: " << sizes[sizeLoop] << std::endl;
 				cudaFree(dev_a);
 				cudaFree(dev_b);
 				cudaFree(dev_c);
@@ -102,6 +96,7 @@ int main(int argc, char** argv)
 		delete[] b;
 		delete[] c;
 	}
+	resultsFile.close();
 	std::cin.get();
 	std::cin.ignore();
 	return 0;
