@@ -4,6 +4,15 @@
 #include <cstdio>
 #include "helper_functions.h"
 #include "helper_cuda.h"
+#include <fstream>
+
+
+
+void doStuffOnCPU() //does stuff on CPU
+{
+
+}
+
 
 __global__ void add (int *a,int *b, int *c, const int N) 
 {
@@ -24,6 +33,8 @@ int main(int argc, char** argv)
 	}
 	StopWatchInterface *timer = NULL;
 	float elapsedTime = 0.0f;
+	
+	
 	int threadId = 1024;
 	int block = 256;
 
