@@ -2,6 +2,8 @@
 #include <cuda.h>
 #include <cstdlib>
 #include "helper_functions.h"
+#include <fstream>
+#include <iostream>
 
 __global__ void add (int *a,int *b, int *c,int N) 
 {
@@ -50,14 +52,17 @@ int main(int argc,char **argv)
 	c = (int*)malloc(N*sizeof(int));
 	d = (int*)malloc(N*sizeof(int));
 
-//printf("Experiment Data:\n");
-//printf("N=%d\nblock_per_grid=%d\nthread_per_block=%d\n",N,block_per_grid,thread_per_block);
-
 	for (int i=0;i<N;i++) 
 	{
 		a[i] = i;
 		b[i] = i*1;
 	}
+
+	std::ofstream cpuFile;
+	std::ofstream gpuFile;
+
+	cpuFile.open("cpu.txt");
+	gpuFile.open("gpu.txt");
 
 	StopWatchInterface *timer = NULL;
 	sdkCreateTimer(&timer);
@@ -77,13 +82,6 @@ int main(int argc,char **argv)
 	sdkStopTimer(&timer);
 	float time = sdkGetTimerValue(&timer);
 	sdkDeleteTimer(&timer);
-	
-//printf("----------Result for kernel----------\n");
-//	for (int i=0;i<N;i++) 
-//	{
-//		printf("%d+%d=%d\n",a[i],b[i],c[i]);
-//	}
-	//printf("GPU Size:%d Time: %f ms\n",N,time);	
 
 	cudaFree(dev_a);
 	cudaFree(dev_b);
@@ -102,22 +100,28 @@ int main(int argc,char **argv)
 	float time_host = sdkGetTimerValue(&timer_host);
 	sdkDeleteTimer(&timer_host);
 
-//printf("----------Result for host:-----------\n");
-//	for (int i=0;i<N;i++)
-//	{
-//		printf("%d+%d=%d\n",a[i],b[i],d[i]);
-//	}
-	//printf("CPU Size:%d Time:%f ms\n",N,time_host);	
-
 // Checking if same
 	bool same_host_gpu = is_same(c,d,N);
 	if (same_host_gpu){ 
 		printf("GPU: %d %f\n",N,time);	
 		printf("CPU: %d %f\n",N,time_host);	
-	}else
-		printf("SIZE:%d ERROR\n",N);	
 
-	free(a);free(b);free(c);free(d);
+		gpuFile << N << " " << time << std::endl;
+		cpuFile << N << " " << time_host << std::endl;
+	}
+	else
+	{
+		printf("SIZE:%d ERROR\n", N);
+	}
+	free(a);
+	free(b);
+	free(c);
+	free(d);
 // Happy end
+	cpuFile.close();
+	gpuFile.close();
+
+	std::cin.get();
+	std::cin.ignore();
 	return 0;
 }
