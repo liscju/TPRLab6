@@ -51,9 +51,9 @@ int main(int argc, char** argv)
 	for (int sizeLoop = 0; sizeLoop < dimension; sizeLoop++)
 	{
 		N = sizes[sizeLoop];
-		a = new int[sizes[sizeLoop]];
-		b = new int[sizes[sizeLoop]];
-		c = new int[sizes[sizeLoop]];
+		a = new int[N];
+		b = new int[N];
+		c = new int[N];
 		for (int i = 0; i < dimension; i++)
 		{
 			threadId = threads[i];
@@ -87,7 +87,7 @@ int main(int argc, char** argv)
 				sdkStopTimer(&timer);
 				checkCudaErrors(cudaEventElapsedTime(&elapsedTime, start, stop));
 
-				std::cout << "Time: " << elapsedTime << "\tBlocks: " << block << "\tThreads: " << threadId << "\tProblem size: " << sizes[sizeLoop] << std::endl;
+				resultsFile << N << " " << elapsedTime << " " << block * threadId << std::endl;
 				cudaFree(dev_a);
 				cudaFree(dev_b);
 				cudaFree(dev_c);
