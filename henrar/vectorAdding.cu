@@ -17,7 +17,7 @@ __global__ void add (int *a,int *b, int *c, const int N)
 int main(int argc, char** argv)
 {
 	if (argc != 2) {
-		fprintf(stderr, "Wrong arguments. Usage: %s <vector-size> <block-count> <thread-count>\n", argv[0]);
+		fprintf(stderr, "Wrong arguments. \n", argv[0]);
 		std::cin.get();
 		std::cin.ignore();
 		return EXIT_FAILURE;
