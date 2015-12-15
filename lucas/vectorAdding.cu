@@ -40,7 +40,7 @@ void addCPU(int *a,int *b, int *c, int size) {
 }
 
 void countCPU() {
-	printf("###CPU:\n");
+	printf("###CPU:\n %d %d", vectorSize, blockCount);
 	StopWatchInterface* timer = NULL;
 	sdkCreateTimer(&timer);
 	sdkResetTimer(&timer);
@@ -57,7 +57,7 @@ void countCPU() {
 }
 
 void countGPU() {
-	printf("###GPU:\n");
+	printf("###GPU:\n %d %d", vectorSize, blockCount);
 	int *dev_a, *dev_b, *dev_c;
 	cudaMalloc((void**)&dev_a, vectorSize * sizeof(int));
 	cudaMalloc((void**)&dev_b, vectorSize * sizeof(int));
